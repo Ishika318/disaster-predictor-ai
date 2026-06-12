@@ -1,1 +1,1 @@
-print("Hello Disaster AI")
+print("Disaster Predictor AI")
