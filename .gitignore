@@ -1,6 +1,3 @@
-*.pkl
-*.keras
-*.h5
 *.7z
 data/flood/train/
 data/flood/test/
