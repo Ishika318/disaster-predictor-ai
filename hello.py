@@ -1,1 +1,0 @@
-print("Disaster Predictor AI")
