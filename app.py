@@ -39,7 +39,7 @@ def load_models():
     try:
         models["cyclone"] = tf.keras.models.load_model(base + "cyclone_cnn_model.keras")
     except Exception as e:
-        print("Cyclone CNN not loaded:", e)
+        models["cyclone_error"] = str(e)
 
     try:
         models["flood"]      = joblib.load(base + "flood_model.pkl")
@@ -161,8 +161,15 @@ elif page == "🌀 Cyclone":
                     st.plotly_chart(fig, use_container_width=True)
                 else:
                     st.error("Cyclone CNN model not loaded!")
+                    if "cyclone_error" in models:
+                        st.code(models["cyclone_error"])
         else:
             st.info("👆 Upload a satellite image to get CNN-based prediction.")
+            if "cyclone_error" not in models and "cyclone" not in models:
+                pass
+            if "cyclone_error" in models:
+                with st.expander("⚠️ Debug: Why CNN model failed to load"):
+                    st.code(models["cyclone_error"])
 
     # ---------------- TAB 2: WEATHER SLIDER PREDICTION ----------------
     with tab2:
