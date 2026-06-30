@@ -19,54 +19,83 @@ st.set_page_config(
 
 st.markdown("""
 <style>
+    .stApp {
+        background: radial-gradient(circle at top left, rgba(231,76,60,0.04), transparent 40%),
+                    radial-gradient(circle at bottom right, rgba(52,152,219,0.04), transparent 40%);
+    }
     .prediction-box {
-        border-radius: 15px;
-        padding: 25px;
+        border-radius: 16px;
+        padding: 28px;
         text-align: center;
         font-size: 1.5rem;
-        font-weight: bold;
-        margin: 20px 0;
+        font-weight: 700;
+        margin: 22px 0;
         letter-spacing: 0.5px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.25);
     }
     [data-testid="stMetric"] {
-        background-color: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 12px;
-        padding: 18px 14px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+        border: 1px solid rgba(255,255,255,0.10);
+        border-radius: 14px;
+        padding: 20px 16px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    [data-testid="stMetric"]:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.25);
     }
     [data-testid="stMetricLabel"] {
         font-weight: 600;
         letter-spacing: 0.3px;
     }
+    [data-testid="stMetricValue"] {
+        font-size: 1.6rem;
+        background: linear-gradient(90deg, #e74c3c, #f39c12);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+    }
     section[data-testid="stSidebar"] {
         border-right: 1px solid rgba(255,255,255,0.08);
+        background: linear-gradient(180deg, rgba(231,76,60,0.03), transparent 30%);
     }
     h1, h2, h3 {
         letter-spacing: 0.3px;
     }
     .stTabs [data-baseweb="tab"] {
         font-weight: 600;
+        border-radius: 10px 10px 0 0;
     }
     div[role="radiogroup"] label {
-        padding: 10px 14px;
+        padding: 11px 14px;
         border-radius: 10px;
-        margin-bottom: 4px;
-        transition: background-color 0.2s ease;
+        margin-bottom: 5px;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
     }
     div[role="radiogroup"] label:hover {
-        background-color: rgba(255,255,255,0.06);
+        background-color: rgba(231,76,60,0.08);
+        border: 1px solid rgba(231,76,60,0.2);
     }
     .stButton button {
         border-radius: 10px;
         font-weight: 600;
         letter-spacing: 0.3px;
-        padding: 0.6rem 1rem;
+        padding: 0.65rem 1rem;
+        transition: transform 0.15s ease;
+        border: none;
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        color: white;
+    }
+    .stButton button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(231,76,60,0.35);
     }
     .stSlider {
-        padding-bottom: 6px;
+        padding-bottom: 8px;
     }
-    [data-testid="stMetricValue"] {
-        font-size: 1.4rem;
+    hr {
+        border-color: rgba(255,255,255,0.08);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -113,7 +142,12 @@ st.sidebar.markdown("---")
 st.sidebar.markdown("<p style='color:gray; font-size:0.75rem; text-align:center; margin-top:20px;'>Disaster Prediction AI System</p>", unsafe_allow_html=True)
 
 if page == "Home":
-    st.markdown("<h1 style='text-align:center; color:#e74c3c; letter-spacing:1px;'>DISASTER PREDICTION AI</h1>", unsafe_allow_html=True)
+    st.markdown("""
+    <h1 style='text-align:center; letter-spacing:1px; font-size:2.6rem;
+    background: linear-gradient(90deg, #e74c3c, #f39c12);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+    DISASTER PREDICTION AI</h1>
+    """, unsafe_allow_html=True)
     st.markdown("<h4 style='text-align:center; color:gray; font-weight:400;'>AI-powered early warning system for natural disasters</h4>", unsafe_allow_html=True)
     st.markdown("---")
 
