@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import joblib
 import os
+import tensorflow as tf
 from PIL import Image
 import plotly.express as px
 import plotly.graph_objects as go
@@ -33,6 +34,13 @@ st.markdown("""
 def load_models():
     models = {}
     base = "models/"
+
+    # Cyclone CNN Model
+    try:
+        models["cyclone"] = tf.keras.models.load_model(base + "cyclone_cnn_model.keras")
+    except Exception as e:
+        print("Cyclone CNN not loaded:", e)
+
     try:
         models["flood"]      = joblib.load(base + "flood_model.pkl")
         models["flood_feat"] = joblib.load(base + "flood_features.pkl")
@@ -81,7 +89,7 @@ if page == "🏠 Home":
         st.markdown("""
         ### 🎯 About
         This AI system predicts 4 types of natural disasters:
-        - 🌀 **Cyclone** — Weather parameter analysis
+        - 🌀 **Cyclone** — Satellite image (CNN) + Weather parameters
         - 🌊 **Flood** — Environmental factors
         - 🏔️ **Landslide** — Terrain & geological data
         - 🌍 **Earthquake** — Seismic data analysis
@@ -89,8 +97,8 @@ if page == "🏠 Home":
     with col2:
         st.markdown("""
         ### 🛠️ Technologies
-        - 🐍 Python, Scikit-learn
-        - 📊 Pandas, NumPy, Matplotlib
+        - 🐍 Python, Scikit-learn, TensorFlow
+        - 📊 Pandas, NumPy, Plotly
         - 🌐 Streamlit deployment
         - 🤖 CNN, Random Forest models
         - 📡 Real USGS & INSAT3D data
@@ -109,40 +117,88 @@ if page == "🏠 Home":
 
 elif page == "🌀 Cyclone":
     st.title("🌀 Cyclone Prediction")
-    st.markdown("### Enter Weather Parameters")
+    st.markdown("CNN-based satellite image detection **and** weather parameter-based risk assessment.")
 
-    col1, col2 = st.columns(2)
-    with col1:
-        sst      = st.slider("Sea Surface Temperature (°C)", 20.0, 30.0, 26.0)
-        pres     = st.slider("Atmospheric Pressure (hPa)", 980.0, 1025.0, 1000.0)
-        hum      = st.slider("Humidity (%)", 30.0, 100.0, 70.0)
-        wind     = st.slider("Wind Shear (m/s)", 5.0, 30.0, 15.0)
-    with col2:
-        lat      = st.slider("Latitude", 5.0, 35.0, 15.0)
-        depth    = st.slider("Ocean Depth (m)", 50.0, 5000.0, 500.0)
-        prox     = st.slider("Proximity to Coastline", 0.5, 2.0, 1.0)
-        pre_dist = st.selectbox("Pre-existing Disturbance", [0, 1])
+    tab1, tab2 = st.tabs(["📷 Satellite Image (CNN)", "🌡️ Weather Parameters"])
 
-    if st.button("🔍 Predict Cyclone", use_container_width=True):
-        score = 0
-        if sst > 26.5:    score += 3
-        if pres < 1000:   score += 3
-        if hum > 70:      score += 2
-        if wind < 15:     score += 2
-        if pre_dist == 1: score += 4
-        if depth < 500:   score += 2
+    # ---------------- TAB 1: CNN IMAGE PREDICTION ----------------
+    with tab1:
+        st.subheader("Upload Satellite Image")
+        uploaded_file = st.file_uploader(
+            "Upload Satellite Image",
+            type=["jpg", "jpeg", "png"]
+        )
+        if uploaded_file is not None:
+            image = Image.open(uploaded_file).convert("RGB")
+            st.image(image, caption="Uploaded Image", width=400)
 
-        if score >= 10:
-            st.error("🌀 HIGH RISK — Cyclone likely!")
-        elif score >= 6:
-            st.warning("⚠️ MEDIUM RISK — Monitor closely")
+            img = image.resize((128, 128))
+            img = np.array(img) / 255.0
+            img = np.expand_dims(img, axis=0)
+
+            if st.button("🔍 Predict from Image", use_container_width=True):
+                if "cyclone" in models:
+                    pred = models["cyclone"].predict(img)[0][0]
+                    if pred > 0.5:
+                        st.error(f"🌀 Cyclone Detected\n\nConfidence: {pred*100:.2f}%")
+                    else:
+                        st.success(f"✅ No Cyclone\n\nConfidence: {(1-pred)*100:.2f}%")
+
+                    fig = go.Figure(go.Indicator(
+                        mode="gauge+number",
+                        value=pred*100,
+                        title={"text": "Cyclone Probability (%)"},
+                        gauge={
+                            "axis": {"range": [0, 100]},
+                            "bar": {"color": "red"},
+                            "steps": [
+                                {"range": [0, 40], "color": "rgba(46,204,113,0.3)"},
+                                {"range": [40, 70], "color": "rgba(243,156,18,0.3)"},
+                                {"range": [70, 100], "color": "rgba(231,76,60,0.3)"}
+                            ]
+                        }
+                    ))
+                    st.plotly_chart(fig, use_container_width=True)
+                else:
+                    st.error("Cyclone CNN model not loaded!")
         else:
-            st.success("✅ LOW RISK — Conditions unfavorable")
+            st.info("👆 Upload a satellite image to get CNN-based prediction.")
 
-        col1, col2, col3 = st.columns(3)
-        col1.metric("Risk Score", f"{score}/16")
-        col2.metric("SST", "⚠️ Danger" if sst > 26.5 else "✅ Safe")
-        col3.metric("Pressure", "⚠️ Low" if pres < 1000 else "✅ Normal")
+    # ---------------- TAB 2: WEATHER SLIDER PREDICTION ----------------
+    with tab2:
+        st.subheader("Enter Weather Parameters")
+        col1, col2 = st.columns(2)
+        with col1:
+            sst      = st.slider("Sea Surface Temperature (°C)", 20.0, 30.0, 26.0)
+            pres     = st.slider("Atmospheric Pressure (hPa)", 980.0, 1025.0, 1000.0)
+            hum      = st.slider("Humidity (%)", 30.0, 100.0, 70.0)
+            wind     = st.slider("Wind Shear (m/s)", 5.0, 30.0, 15.0)
+        with col2:
+            lat      = st.slider("Latitude", 5.0, 35.0, 15.0)
+            depth    = st.slider("Ocean Depth (m)", 50.0, 5000.0, 500.0)
+            prox     = st.slider("Proximity to Coastline", 0.5, 2.0, 1.0)
+            pre_dist = st.selectbox("Pre-existing Disturbance", [0, 1])
+
+        if st.button("🔍 Predict Weather Risk", use_container_width=True):
+            score = 0
+            if sst > 26.5:    score += 3
+            if pres < 1000:   score += 3
+            if hum > 70:      score += 2
+            if wind < 15:     score += 2
+            if pre_dist == 1: score += 4
+            if depth < 500:   score += 2
+
+            if score >= 10:
+                st.error("🌀 HIGH RISK — Cyclone likely!")
+            elif score >= 6:
+                st.warning("⚠️ MEDIUM RISK — Monitor closely")
+            else:
+                st.success("✅ LOW RISK — Conditions unfavorable")
+
+            col1, col2, col3 = st.columns(3)
+            col1.metric("Risk Score", f"{score}/16")
+            col2.metric("SST", "⚠️ Danger" if sst > 26.5 else "✅ Safe")
+            col3.metric("Pressure", "⚠️ Low" if pres < 1000 else "✅ Normal")
 
 elif page == "🌊 Flood":
     st.title("🌊 Flood Probability Prediction")
