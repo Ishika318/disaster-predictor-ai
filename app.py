@@ -202,9 +202,9 @@ elif page == "🌊 Flood":
                 title={"text": "Flood Probability (%)"},
                 gauge={"axis":{"range":[0,100]},
                        "bar":{"color":color},
-                       "steps":[{"range":[0,40],"color":"#2ecc7133"},
-                                {"range":[40,60],"color":"#f39c1233"},
-                                {"range":[60,100],"color":"#e74c3c33"}]}))
+                       "steps":[{"range":[0,40],"color":"rgba(46,204,113,0.2)"},
+                                {"range":[40,60],"color":"rgba(243,156,18,0.2)"},
+                                {"range":[60,100],"color":"rgba(231,76,60,0.2)"}]}))
             st.plotly_chart(fig, use_container_width=True)
         else:
             st.error("Flood model not loaded!")
