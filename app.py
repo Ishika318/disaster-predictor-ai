@@ -47,6 +47,27 @@ st.markdown("""
     .stTabs [data-baseweb="tab"] {
         font-weight: 600;
     }
+    div[role="radiogroup"] label {
+        padding: 10px 14px;
+        border-radius: 10px;
+        margin-bottom: 4px;
+        transition: background-color 0.2s ease;
+    }
+    div[role="radiogroup"] label:hover {
+        background-color: rgba(255,255,255,0.06);
+    }
+    .stButton button {
+        border-radius: 10px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        padding: 0.6rem 1rem;
+    }
+    .stSlider {
+        padding-bottom: 6px;
+    }
+    [data-testid="stMetricValue"] {
+        font-size: 1.4rem;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -89,9 +110,7 @@ page = st.sidebar.radio("Navigate", [
     "Earthquake"
 ])
 st.sidebar.markdown("---")
-st.sidebar.markdown("**Team:**")
-st.sidebar.markdown("OmmkarKhandai")
-st.sidebar.markdown("Ishika318")
+st.sidebar.markdown("<p style='color:gray; font-size:0.75rem; text-align:center; margin-top:20px;'>Disaster Prediction AI System</p>", unsafe_allow_html=True)
 
 if page == "Home":
     st.markdown("<h1 style='text-align:center; color:#e74c3c; letter-spacing:1px;'>DISASTER PREDICTION AI</h1>", unsafe_allow_html=True)
