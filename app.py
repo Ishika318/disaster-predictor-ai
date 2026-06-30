@@ -138,7 +138,8 @@ elif page == "🌀 Cyclone":
 
             if st.button("🔍 Predict from Image", use_container_width=True):
                 if "cyclone" in models:
-                    pred = models["cyclone"].predict(img)[0][0]
+                    raw_pred = models["cyclone"].predict(img)[0][0]
+                    pred = 1 - raw_pred  # labels were inverted during training, so flip here
                     if pred > 0.5:
                         st.error(f"🌀 Cyclone Detected\n\nConfidence: {pred*100:.2f}%")
                     else:
